@@ -12,6 +12,7 @@
       var x=50, y=50;
 	  var maxAccPos=20, maxAccNeg=-20;
       var accx=0, accy=0;
+	  var killed = false;
       var KEY = { D: 68, W: 87, A: 65, S:83, RIGHT:39, UP:38, LEFT:37, DOWN:40, Q:81 };
       var input = {
 		right: false,
@@ -21,6 +22,7 @@
 		quit: false
       };
 	  var balls = new Array();
+	  var securityDistance;
 
       function main() {
         var canvas = document.getElementById('game');
@@ -29,20 +31,34 @@
           jayFront.src = 'jay_front.png';
           jayLeft.src = 'jay_left.png';
           jayRight.src = 'jay_right.png';
+		  jayCurrent = jayFront;
           window.setInterval("update()", 1000/24);
 		  for (i=0; i<maxBalls; i++) {
 		    balls[i] = {}
 		    randomizeBall(balls[i]);
 		  }
+		  securityDistance = jayCurrent.width/2;
         }
       }
       function update() {
-        moveJay();
-		moveBalls();
-        drawBackground();
-        drawJay();
-		drawBalls();
+	    if (!killed) {
+			moveJay();
+			moveBalls();
+			drawBackground();
+			drawJay();
+			drawBalls();
+		} else {
+			window.clearInterval();
+			drawBackground();
+			drawJay();
+			drawGameOver();
+		}
       }
+	  function drawGameOver() {
+		ctx.font = "80px sans-serif";
+		ctx.fillStyle = "rgb(234,15,5)";
+		ctx.fillText("You got poop'd!", 40, gameHeight/2);
+	  }
 	  function randomizeBall(ball) {
 		  ball.speed = Math.random() * 4 + 1;
 		  ball.size = Math. floor(Math.random() * 15) + 15;
@@ -78,7 +94,22 @@
 		moveHorizontally();
 		moveVertically();
 		enforceFloat();
+		checkForCollision();
       }
+	  function checkForCollision() {
+		var xjay = x + jayCurrent.width/2;
+		var yjay = y + jayCurrent.height/2;
+	    for (i in balls) {
+		  var xball = balls[i].x;
+		  var yball = balls[i].y;
+		  var dx = xball-xjay;
+		  var dy = yball-yjay;
+		  var dz = Math.sqrt(dx*dx + dy*dy);
+		  if (dz < securityDistance) {
+		    killed = true;
+		  }
+		}
+	  }
 	  function moveHorizontally() {
 	    accelerateHorizontally();
 		checkHorizontalLimits();
@@ -160,26 +191,26 @@
 		case KEY.Q: input.quit = true; break;
 	}}
 
-function onKeyRelease(evt) {
-	var code = evt.keyCode;
-	switch(code) {
-		case KEY.RIGHT:
-		case KEY.D: input.right = false; break;
+	function onKeyRelease(evt) {
+		var code = evt.keyCode;
+		switch(code) {
+			case KEY.RIGHT:
+			case KEY.D: input.right = false; break;
 
-		case KEY.UP:
-		case KEY.W: input.up = false; break;
+			case KEY.UP:
+			case KEY.W: input.up = false; break;
 
-		case KEY.LEFT:
-		case KEY.A: input.left = false; break;
+			case KEY.LEFT:
+			case KEY.A: input.left = false; break;
 
-		case KEY.DOWN:
-		case KEY.S: input.down = false; break;
+			case KEY.DOWN:
+			case KEY.S: input.down = false; break;
 
-		case KEY.Q: break;
+			case KEY.Q: break;
 
-		default: trace('unrecognized key code: ' +code); break;
-	}	
-}
+			default: trace('unrecognized key code: ' +code); break;
+		}	
+	}
     </script>
     <style type="text/css">  
       canvas { border: 4px solid black; }  
