@@ -1,0 +1,193 @@
+<html>
+  <head>
+    <script type="text/javascript">
+	  var maxBalls = 12;
+      var bgColor="rgb(255,255,255)";
+      var ctx;
+      var jayCurrent;
+      var jayFront=new Image();
+      var jayLeft=new Image();
+      var jayRight=new Image();
+      var gameWidth=600, gameHeight=400;
+      var x=50, y=50;
+	  var maxAccPos=20, maxAccNeg=-20;
+      var accx=0, accy=0;
+      var KEY = { D: 68, W: 87, A: 65, S:83, RIGHT:39, UP:38, LEFT:37, DOWN:40, Q:81 };
+      var input = {
+		right: false,
+		up: false,
+		left: false,
+		down: false,
+		quit: false
+      };
+	  var balls = new Array();
+
+      function main() {
+        var canvas = document.getElementById('game');
+        if (canvas.getContext){
+          ctx = canvas.getContext('2d');
+          jayFront.src = 'jay_front.png';
+          jayLeft.src = 'jay_left.png';
+          jayRight.src = 'jay_right.png';
+          window.setInterval("update()", 1000/24);
+		  for (i=0; i<maxBalls; i++) {
+		    balls[i] = {}
+		    randomizeBall(balls[i]);
+		  }
+        }
+      }
+      function update() {
+        moveJay();
+		moveBalls();
+        drawBackground();
+        drawJay();
+		drawBalls();
+      }
+	  function randomizeBall(ball) {
+		  ball.speed = Math.random() * 4 + 1;
+		  ball.size = Math. floor(Math.random() * 15) + 15;
+		  ball.x = 650 + Math.floor(Math.random() * 100);
+		  ball.y = Math.floor(Math.random() * 360) + 20;
+		  ball.color = "rgb(0,0,0)";
+	  }
+      function drawBackground() {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, gameWidth, gameHeight);
+      }  
+      function drawJay() {
+        ctx.drawImage(jayCurrent, x, y);
+      }
+	  function drawBalls() {
+	    for (i in balls) {
+	      ctx.beginPath();
+		  ctx.arc(balls[i].x, balls[i].y, balls[i].size, 0, 2*Math.PI, true);
+		  ctx.fillStyle = balls[i].color;
+		  ctx.fill();
+		}
+	  }
+	  function moveBalls() {
+	    for (i in balls) {
+		  balls[i].x=balls[i].x-balls[i].speed;
+		  if (balls[i].x < -50) {
+		    randomizeBall(balls[i]);
+		  }
+		}
+	  }
+      function moveJay() {
+        jayCurrent=jayFront;
+		moveHorizontally();
+		moveVertically();
+		enforceFloat();
+      }
+	  function moveHorizontally() {
+	    accelerateHorizontally();
+		checkHorizontalLimits();
+	  }
+	  function moveVertically() {
+	    accelerateVertically();
+		checkVerticalLimits();
+	  }
+	  function accelerateHorizontally() {
+        if(input.right) {
+          accx=accx+1;
+		  if (accx == maxAccPos) {
+			accx = maxAccPos;
+		  }
+          jayCurrent=jayRight;  
+        } else if(input.left) {
+          accx=accx-1;
+		  if (accx == maxAccNeg) {
+			accx = maxAccNeg;
+		  }
+          jayCurrent=jayLeft;
+        } else {
+          accx=accx/1.1;
+        }
+        x=x+accx;
+	  }
+	  function accelerateVertically() {
+        if(input.down) {
+          accy=accy+1;
+		  if (accy == maxAccPos) {
+			accy = maxAccPos;
+		  }
+        } else if(input.up) {
+          accy=accy-1;
+		  if (accy == maxAccNeg) {
+			accy = maxAccNeg;
+		  }
+        } else {
+          accy=accy/1.1;
+        }
+        y=y+accy;
+	  }
+	  function checkHorizontalLimits() {
+		var halfJay = jayFront.width/2;
+		var center = x+halfJay;
+		if (center > gameWidth) {
+		  x = gameWidth - halfJay;
+		} else if (center < 0) {
+		  x = -halfJay;
+		}
+	  }
+	  function checkVerticalLimits() {
+		var halfJay = jayFront.height/2;
+		var center = y+halfJay;
+		if (center > gameHeight) {
+		  y = gameHeight - halfJay;
+		} else if (center < 0) {
+		  y = -halfJay;
+		}
+	  }
+	  function enforceFloat(){
+        y=y-1;
+	  }
+      function onKeyPressed(evt) {
+	var code = evt.keyCode;
+	switch(code) {
+		case KEY.RIGHT:
+		case KEY.D: input.right = true; break;
+
+		case KEY.UP:
+		case KEY.W: input.up = true; break;
+
+		case KEY.LEFT:
+		case KEY.A: input.left = true; break;
+
+		case KEY.DOWN: 
+		case KEY.S: input.down = true; break;
+
+		case KEY.Q: input.quit = true; break;
+	}}
+
+function onKeyRelease(evt) {
+	var code = evt.keyCode;
+	switch(code) {
+		case KEY.RIGHT:
+		case KEY.D: input.right = false; break;
+
+		case KEY.UP:
+		case KEY.W: input.up = false; break;
+
+		case KEY.LEFT:
+		case KEY.A: input.left = false; break;
+
+		case KEY.DOWN:
+		case KEY.S: input.down = false; break;
+
+		case KEY.Q: break;
+
+		default: trace('unrecognized key code: ' +code); break;
+	}	
+}
+    </script>
+    <style type="text/css">  
+      canvas { border: 4px solid black; }  
+    </style>
+  </head>
+  <body onload="main();" onkeydown="onKeyPressed(event)" onkeyup="onKeyRelease(event)">
+    <canvas id="game" width="600" height="400">
+      Sorry, canvas can not be displayed.
+    </canvas>
+  </body>
+</html>
