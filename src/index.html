@@ -37,10 +37,10 @@
 		    balls[i] = {}
 		    randomizeBall(balls[i]);
 		  }
-		  securityDistance = jayCurrent.width/2;
         }
       }
       function update() {
+		securityDistance = jayCurrent.width/2;
 	    if (!killed) {
 			moveJay();
 			moveBalls();
